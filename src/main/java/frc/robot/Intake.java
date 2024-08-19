@@ -9,6 +9,10 @@ import frc.util.LogitechF310;
 
       
 public class Intake{
+    final double HORIZONTAL_BRUSH_SPEED = .7;
+    final double VERTICAL_BRUSH_SPEED = .7;
+
+
     LogitechF310 driver, monkey;
     TalonSRX intake, vBrush; 
     CANSparkMax lBrush, rBrush;
@@ -36,26 +40,25 @@ public class Intake{
         }
 
         if(monkey.getRawButton(LogitechButton.B)){
-            vBrush.set(ControlMode.PercentOutput, .2);
-            lBrush.set(.2);
-            rBrush.set(.2);
+            vBrush.set(ControlMode.PercentOutput, -VERTICAL_BRUSH_SPEED);
+            lBrush.set(-HORIZONTAL_BRUSH_SPEED);
+            rBrush.set(-HORIZONTAL_BRUSH_SPEED);
         }
         else if(monkey.getRawButton(LogitechButton.Y)){
-            vBrush.set(ControlMode.PercentOutput, -.2);
+            vBrush.set(ControlMode.PercentOutput, VERTICAL_BRUSH_SPEED);
         }
         else{
             vBrush.set(ControlMode.PercentOutput, 0);
+            lBrush.set(0);
+            rBrush.set(0);
         }
 
 
         if(monkey.getRawButton(LogitechButton.X)){
-            lBrush.set(.2);
-            rBrush.set(.2);
-        }
-        else{
-            lBrush.set(0);
-            rBrush.set(0);
-        }
+             lBrush.set(-HORIZONTAL_BRUSH_SPEED);
+             rBrush.set(-HORIZONTAL_BRUSH_SPEED);
+         }
+         
 
 
 

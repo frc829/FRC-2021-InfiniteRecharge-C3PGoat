@@ -7,9 +7,13 @@
 
 package frc.robot;
 
+import com.analog.adis16470.frc.ADIS16470_IMU;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.autos.Course;
+import frc.util.LogitechF310;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,6 +28,15 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+
+  LogitechF310 driver, monkey;
+  Drive drive;
+  Intake intake;
+  Shoot shoot;
+  ADIS16470_IMU gyro;
+
+  Course course;
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -33,6 +46,24 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    driver = new LogitechF310(0);
+    monkey = new LogitechF310(1);
+    gyro = new ADIS16470_IMU();
+
+    gyro.reset();
+    
+    drive = new Drive(driver,monkey,gyro);
+    intake = new Intake(driver,monkey);
+    shoot = new Shoot(driver,monkey);
+
+    course = new Course(drive, shoot, intake);
+    drive.coastMode();
+    
+
+  }@Override
+  public void disabledPeriodic() {
+    shoot.targetTopSpeed = 0;
+    shoot.targetBottomSpeed = 0;
   }
 
   /**
@@ -45,6 +76,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    
   }
 
   /**
@@ -61,8 +93,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+    
   }
 
   /**
@@ -70,22 +103,23 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+    course.execute();
   }
 
   /**
    * This function is called periodically during operator control.
    */
   @Override
+  public void teleopInit() {
+    
+    super.teleopInit();
+  }
+  
+   @Override
   public void teleopPeriodic() {
+    drive.teleopUpdate();
+    intake.teleopUpdate();
+    shoot.teleopUpdate();
   }
 
   /**
